@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Meus endereços — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<h1>Meus endereços</h1>
+{% if enderecos %}
+  <ul class="lista cartao">
+    {% for e in enderecos %}
+      <li>{{ e.logradouro }}, {{ e.numero }}{% if e.complemento %} — {{ e.complemento }}{% endif %}<span>{{ e.bairro }}, {{ e.cidade }} · CEP {{ e.cep[:5] }}-{{ e.cep[5:] }}</span></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="vazio">Nenhum endereço cadastrado.</p>
+{% endif %}
+<form method="post" class="cartao" novalidate>
+  <h2>Novo endereço</h2>
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <input type="hidden" name="voltar_para" value="{{ voltar_para }}">
+  <label for="logradouro">Rua</label>
+  <input id="logradouro" name="logradouro" required maxlength="120">
+  <label for="numero">Número</label>
+  <input id="numero" name="numero" required maxlength="10">
+  <label for="complemento">Complemento (opcional)</label>
+  <input id="complemento" name="complemento" maxlength="60">
+  <label for="bairro">Bairro</label>
+  <input id="bairro" name="bairro" required maxlength="60">
+  <label for="cidade">Cidade</label>
+  <input id="cidade" name="cidade" required maxlength="60">
+  <label for="cep">CEP (8 números)</label>
+  <input id="cep" name="cep" required inputmode="numeric" maxlength="9">
+  <button class="botao" type="submit">Salvar endereço</button>
+</form>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Carrinho — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<h1>Seu carrinho</h1>
+{% if itens %}
+<div class="rolagem">
+<table>
+  <thead><tr><th>Item</th><th>Preço</th><th>Quantidade</th><th>Subtotal</th><th></th></tr></thead>
+  <tbody>
+  {% for i in itens %}
+    <tr>
+      <td>{{ i.produto.nome }}</td>
+      <td>{{ i.produto.preco|brl }}</td>
+      <td>
+        <form method="post" action="{{ url_for('cardapio.atualizar') }}" class="linha">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <input type="hidden" name="id_produto" value="{{ i.produto.id_produto }}">
+          <label class="oculto" for="q{{ i.produto.id_produto }}">Quantidade de {{ i.produto.nome }}</label>
+          <input id="q{{ i.produto.id_produto }}" class="qtd" name="quantidade" type="number" min="1" max="20" value="{{ i.quantidade }}">
+          <button class="botao secundario" type="submit">Atualizar</button>
+        </form>
+      </td>
+      <td>{{ i.subtotal|brl }}</td>
+      <td>
+        <form method="post" action="{{ url_for('cardapio.remover') }}">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <input type="hidden" name="id_produto" value="{{ i.produto.id_produto }}">
+          <button class="botao perigo" type="submit">Remover</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<section class="cartao resumo">
+  <p>Subtotal <strong>{{ subtotal|brl }}</strong></p>
+  <p>Taxa de entrega <strong>{{ taxa|brl }}</strong></p>
+  <p class="total">Total <strong>{{ total|brl }}</strong></p>
+  <a class="botao" href="{{ url_for('pedidos.finalizar') }}">Finalizar pedido</a>
+</section>
+{% else %}
+  <p class="vazio">Seu carrinho está vazio.</p>
+  <a class="botao" href="{{ url_for('cardapio.ver_cardapio') }}">Ver cardápio</a>
+{% endif %}
+{% endblock %}

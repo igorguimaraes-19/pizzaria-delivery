@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Meus pedidos — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<h1>Meus pedidos</h1>
+{% if pedidos %}
+  {% for p in pedidos %}
+  <a class="cartao pedido-linha" href="{{ url_for('pedidos.detalhe', id_pedido=p.id_pedido) }}">
+    <div><strong>Pedido nº {{ p.id_pedido }}</strong><br><small>{{ p.data_hora|data_hora }}</small></div>
+    <div class="direita"><span class="selo selo-{{ p.status }}">{{ rotulo_status[p.status] }}</span><br><strong>{{ p.valor_total|brl }}</strong></div>
+  </a>
+  {% endfor %}
+{% else %}
+  <p class="vazio">Você ainda não fez nenhum pedido.</p>
+  <a class="botao" href="{{ url_for('cardapio.ver_cardapio') }}">Ver cardápio</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Cardápio (admin) — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<h1>Gerenciar cardápio</h1>
+<a class="botao" href="{{ url_for('admin.formulario_produto') }}">Novo produto</a>
+<div class="rolagem">
+<table>
+  <thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Situação</th><th>Ações</th></tr></thead>
+  <tbody>
+  {% for p in produtos %}
+    <tr class="{{ '' if p.ativo else 'inativo' }}">
+      <td>{{ p.nome }}</td>
+      <td>{{ p.categoria|capitalize }}</td>
+      <td>{{ p.preco|brl }}</td>
+      <td>{{ 'Disponível' if p.ativo else 'Indisponível' }}</td>
+      <td class="linha">
+        <a class="botao secundario" href="{{ url_for('admin.formulario_produto', id_produto=p.id_produto) }}">Editar</a>
+        <form method="post" action="{{ url_for('admin.alternar_ativo', id_produto=p.id_produto) }}">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <button class="botao {{ 'perigo' if p.ativo else '' }}" type="submit">{{ 'Inativar' if p.ativo else 'Reativar' }}</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

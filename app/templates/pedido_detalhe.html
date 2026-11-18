@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titulo %}Pedido nº {{ pedido.id_pedido }} — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+{% set ordem = ['RECEBIDO', 'EM_PREPARO', 'SAIU_PARA_ENTREGA', 'ENTREGUE'] %}
+{% set pos = ordem.index(pedido.status) if pedido.status in ordem else -1 %}
+<h1>Pedido nº {{ pedido.id_pedido }}</h1>
+<p>{{ pedido.data_hora|data_hora }} · <span class="selo selo-{{ pedido.status }}">{{ rotulo_status[pedido.status] }}</span></p>
+
+{% if pedido.status == 'CANCELADO' %}
+  <div class="aviso aviso-erro">Este pedido foi cancelado.</div>
+{% else %}
+  <ol class="etapas" aria-label="Andamento do pedido">
+    {% for s in ordem %}
+      <li class="{{ 'feita' if loop.index0 <= pos }}">{{ rotulo_status[s] }}</li>
+    {% endfor %}
+  </ol>
+{% endif %}
+
+<section class="cartao">
+  <h2>Itens</h2>
+  <ul class="lista">
+    {% for i in pedido.itens %}<li>{{ i.quantidade }}× {{ i.nome }} <span>{{ i.subtotal|brl }}</span></li>{% endfor %}
+  </ul>
+  <p>Taxa de entrega <strong>{{ pedido.taxa_entrega|brl }}</strong></p>
+  <p class="total">Total <strong>{{ pedido.valor_total|brl }}</strong></p>
+  <p>Pagamento: {{ {'DINHEIRO': 'Dinheiro', 'CARTAO': 'Cartão', 'PIX': 'Pix'}[pedido.forma_pagamento] }}</p>
+  {% if pedido.observacao %}<p>Observação: {{ pedido.observacao }}</p>{% endif %}
+</section>
+
+<section class="cartao">
+  <h2>Entrega</h2>
+  <p>{{ pedido.cliente }} · {{ pedido.telefone }}</p>
+  <p>{{ pedido.logradouro }}, {{ pedido.numero }}{% if pedido.complemento %} — {{ pedido.complemento }}{% endif %}<br>{{ pedido.bairro }}, {{ pedido.cidade }}</p>
+</section>
+
+{% if pode_cancelar %}
+<form method="post" action="{{ url_for('pedidos.cancelar', id_pedido=pedido.id_pedido) }}"
+      onsubmit="return confirm('Tem certeza que deseja cancelar este pedido?');">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <button class="botao perigo" type="submit">Cancelar pedido</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar' if produto and produto.get('id_produto') else 'Novo' }} produto — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<section class="cartao estreito">
+  <h1>{{ 'Editar produto' if produto and produto.get('id_produto') else 'Novo produto' }}</h1>
+  <form method="post" novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <label for="nome">Nome (inclua o tamanho, se houver)</label>
+    <input id="nome" name="nome" required maxlength="100" value="{{ produto.nome if produto else '' }}">
+    <label for="descricao">Descrição</label>
+    <input id="descricao" name="descricao" maxlength="255" value="{{ (produto.descricao or '') if produto else '' }}">
+    <label for="categoria">Categoria</label>
+    <select id="categoria" name="categoria" required>
+      {% for c in categorias %}
+        <option value="{{ c }}" {{ 'selected' if produto and produto.categoria == c }}>{{ c|capitalize }}</option>
+      {% endfor %}
+    </select>
+    <label for="preco">Preço (R$)</label>
+    <input id="preco" name="preco" required inputmode="decimal" value="{{ produto.preco if produto else '' }}">
+    <button class="botao" type="submit">Salvar</button>
+    <a class="botao secundario" href="{{ url_for('admin.produtos') }}">Cancelar</a>
+  </form>
+</section>
+{% endblock %}

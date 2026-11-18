@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Finalizar pedido — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<h1>Finalizar pedido</h1>
+<section class="cartao">
+  <h2>Resumo</h2>
+  <ul class="lista">
+    {% for i in itens %}<li>{{ i.quantidade }}× {{ i.produto.nome }} <span>{{ i.subtotal|brl }}</span></li>{% endfor %}
+  </ul>
+  <p>Taxa de entrega <strong>{{ taxa|brl }}</strong></p>
+  <p class="total">Total <strong>{{ total|brl }}</strong></p>
+</section>
+
+{% if enderecos %}
+<form method="post" action="{{ url_for('pedidos.pedidos') }}" class="cartao">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <fieldset>
+    <legend>Endereço de entrega</legend>
+    {% for e in enderecos %}
+      <label class="opcao">
+        <input type="radio" name="id_endereco" value="{{ e.id_endereco }}" {{ 'checked' if loop.first }} required>
+        {{ e.logradouro }}, {{ e.numero }}{% if e.complemento %} — {{ e.complemento }}{% endif %} · {{ e.bairro }}, {{ e.cidade }}
+      </label>
+    {% endfor %}
+    <a href="{{ url_for('pedidos.enderecos', voltar_para='finalizar') }}">Cadastrar outro endereço</a>
+  </fieldset>
+  <fieldset>
+    <legend>Forma de pagamento (na entrega)</legend>
+    {% for f in formas %}
+      <label class="opcao">
+        <input type="radio" name="forma_pagamento" value="{{ f }}" {{ 'checked' if loop.first }} required>
+        {{ {'DINHEIRO': 'Dinheiro', 'CARTAO': 'Cartão', 'PIX': 'Pix'}[f] }}
+      </label>
+    {% endfor %}
+  </fieldset>
+  <label for="observacao">Observações (opcional)</label>
+  <input id="observacao" name="observacao" maxlength="255" placeholder="Ex.: sem cebola">
+  <button class="botao" type="submit">Confirmar pedido</button>
+</form>
+{% else %}
+<section class="cartao">
+  <p>Você ainda não tem endereço cadastrado.</p>
+  <a class="botao" href="{{ url_for('pedidos.enderecos', voltar_para='finalizar') }}">Cadastrar endereço</a>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Painel de pedidos — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<h1>Painel de pedidos</h1>
+<form method="get" class="filtro-admin">
+  <label for="data">Data</label>
+  <input id="data" name="data" type="date" value="{{ dia }}">
+  <label for="status">Status</label>
+  <select id="status" name="status">
+    <option value="">Todos</option>
+    {% for chave, rotulo in rotulo_status.items() %}
+      <option value="{{ chave }}" {{ 'selected' if status == chave }}>{{ rotulo }}</option>
+    {% endfor %}
+  </select>
+  <button class="botao" type="submit">Filtrar</button>
+</form>
+<p class="destaque">Faturamento do dia (sem cancelados): <strong>{{ faturamento|brl }}</strong></p>
+
+{% if pedidos %}
+<div class="rolagem">
+<table>
+  <thead><tr><th>Nº</th><th>Hora</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Status</th><th>Ações</th></tr></thead>
+  <tbody>
+  {% for p in pedidos %}
+    <tr>
+      <td><a href="{{ url_for('pedidos.detalhe', id_pedido=p.id_pedido) }}">{{ p.id_pedido }}</a></td>
+      <td>{{ p.data_hora.strftime('%H:%M') }}</td>
+      <td>{{ p.cliente }}<br><small>{{ p.telefone }}</small></td>
+      <td>{{ p.logradouro }}, {{ p.numero }} · {{ p.bairro }}</td>
+      <td>{{ p.valor_total|brl }}</td>
+      <td><span class="selo selo-{{ p.status }}">{{ rotulo_status[p.status] }}</span></td>
+      <td>
+        {% if p.status in ['RECEBIDO', 'EM_PREPARO', 'SAIU_PARA_ENTREGA'] %}
+        <form method="post" action="{{ url_for('admin.avancar', id_pedido=p.id_pedido) }}">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <button class="botao" type="submit">Avançar status</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+  <p class="vazio">Nenhum pedido encontrado para este filtro.</p>
+{% endif %}
+{% endblock %}

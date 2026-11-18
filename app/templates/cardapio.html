@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Cardápio — Pizzaria Delivery{% endblock %}
+{% block conteudo %}
+<h1>Cardápio</h1>
+{% if not aberto %}
+  <div class="aviso aviso-info" role="status">Estamos fechados agora. Recebemos pedidos {{ horario_texto }}.</div>
+{% endif %}
+<nav class="filtros" aria-label="Filtrar por categoria">
+  <a class="chip {{ 'ativo' if not categoria }}" href="{{ url_for('cardapio.ver_cardapio') }}">Todos</a>
+  {% for c in categorias %}
+    <a class="chip {{ 'ativo' if categoria == c }}" href="{{ url_for('cardapio.ver_cardapio', categoria=c) }}">{{ c|capitalize }}</a>
+  {% endfor %}
+</nav>
+
+{% if produtos %}
+<div class="grade">
+  {% for p in produtos %}
+  <article class="cartao produto">
+    <span class="etiqueta">{{ p.categoria|capitalize }}</span>
+    <h2>{{ p.nome }}</h2>
+    <p class="descricao">{{ p.descricao or '' }}</p>
+    <p class="preco">{{ p.preco|brl }}</p>
+    <form method="post" action="{{ url_for('cardapio.adicionar') }}" class="linha">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <input type="hidden" name="id_produto" value="{{ p.id_produto }}">
+      <label class="oculto" for="qtd{{ p.id_produto }}">Quantidade</label>
+      <input id="qtd{{ p.id_produto }}" class="qtd" name="quantidade" type="number" min="1" max="20" value="1">
+      <button class="botao" type="submit">Adicionar ao carrinho</button>
+    </form>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+  <p class="vazio">Nenhum item disponível nesta categoria.</p>
+{% endif %}
+{% endblock %}

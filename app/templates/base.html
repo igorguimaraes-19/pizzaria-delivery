@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Pizzaria Delivery{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo">
+    <div class="container topo-conteudo">
+      <a class="marca" href="{{ url_for('cardapio.ver_cardapio') }}">🍕 Pizzaria Delivery</a>
+      <nav class="menu" aria-label="Menu principal">
+        <a href="{{ url_for('cardapio.ver_cardapio') }}">Cardápio</a>
+        <a href="{{ url_for('cardapio.ver_carrinho') }}">Carrinho <span class="contador">{{ qtd_carrinho }}</span></a>
+        {% if usuario_nome %}
+          {% if usuario_perfil == 'ADMIN' %}
+            <a href="{{ url_for('admin.painel_pedidos') }}">Pedidos</a>
+            <a href="{{ url_for('admin.produtos') }}">Produtos</a>
+          {% else %}
+            <a href="{{ url_for('pedidos.pedidos') }}">Meus pedidos</a>
+            <a href="{{ url_for('pedidos.enderecos') }}">Endereços</a>
+          {% endif %}
+          <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+            <input type="hidden" name="csrf" value="{{ csrf_token }}">
+            <button type="submit" class="link">Sair ({{ usuario_nome }})</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">Entrar</a>
+          <a href="{{ url_for('auth.cadastro') }}">Cadastrar</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, texto in mensagens %}
+        <div class="aviso aviso-{{ categoria }}" role="{{ 'alert' if categoria == 'erro' else 'status' }}">{{ texto }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="rodape container">Projeto Integrador Transdisciplinar em Engenharia de Software II</footer>
+</body>
+</html>
